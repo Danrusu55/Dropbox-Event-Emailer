@@ -1,3 +1,5 @@
+#!/usr/bin/env python2.7
+
 import dropbox, smtplib,os
 from datetime import datetime
 from email.mime.text import MIMEText
@@ -52,8 +54,8 @@ def smtpMailer(todayArray,weekArray,username,password):
     server = smtplib.SMTP('smtp.gmail.com:587')
     server.starttls()
     server.login(username,password)
-    print(msg)
-    #server.sendmail(sender,receiver,msg.as_string())
+    #print(msg)
+    server.sendmail(sender,receiver,msg.as_string())
     server.quit()
 
 # STARTING APP

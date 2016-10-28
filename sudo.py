@@ -1,3 +1,5 @@
+#!/usr/bin/env python2.7
+
 Use dropbox get_folders api call to get a list of entries in the appropriate folder. Then put all that in a csv file that is then emailed to the client.
 
 Make this a simple script on my site that the client can visit and can click to run when they choose
