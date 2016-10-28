@@ -14,11 +14,9 @@ api = os.environ['DROPBOX_API']
 username = os.environ['DROPBOX_EMAIL_USER']
 password = os.environ['DROPBOX_EMAIL_PASSWORD']
 
-#initiating classes
-dbx = dropbox.Dropbox(api)
 
 # MAILER FUNCTION
-def smtpMailer(todayArray,weekArray,username,password):
+def smtpMailer(dbx, todayArray,weekArray,username,password):
     #VARIABLES
     sender = 'bullhorn0002@gmail.com'
     receiver = 'daniel7rusu@gmail.com'
@@ -58,21 +56,26 @@ def smtpMailer(todayArray,weekArray,username,password):
     server.sendmail(sender,receiver,msg.as_string())
     server.quit()
 
-# STARTING APP
-for entry in dbx.files_list_folder('/tax/work papers',recursive=True).entries:
-    if hasattr(entry,'id'): #checking to ensure someone else uploaded it
-        if entry.id != 'id:p_Z1dV08HFAAAAAAAAAAAQ':
-            if hasattr(entry,'client_modified'): #ensuring it's a file
-                timeDiff= timeNow - entry.client_modified
-                if int(timeDiff.total_seconds()) < secDay:
-                    todayArray.append([entry.path_lower.replace(" ","%20"),entry.client_modified])
-                elif int(timeDiff.total_seconds()) < secWeek:
-                    weekArray.append([entry.path_lower.replace(" ","%20"),entry.client_modified])
-                else:
-                    pass
+
+if __name__ == "__main__":
+    #initiating classes
+    dbx = dropbox.Dropbox(api)
+
+    # STARTING APP
+    for entry in dbx.files_list_folder('/tax/work papers',recursive=True).entries:
+        if hasattr(entry,'id'): #checking to ensure someone else uploaded it
+            if entry.id != 'id:p_Z1dV08HFAAAAAAAAAAAQ':
+                if hasattr(entry,'client_modified'): #ensuring it's a file
+                    timeDiff= timeNow - entry.client_modified
+                    if int(timeDiff.total_seconds()) < secDay:
+                        todayArray.append([entry.path_lower.replace(" ","%20"),entry.client_modified])
+                    elif int(timeDiff.total_seconds()) < secWeek:
+                        weekArray.append([entry.path_lower.replace(" ","%20"),entry.client_modified])
+                    else:
+                        pass
+            else:
+                pass
         else:
             pass
-    else:
-        pass
 
-smtpMailer(todayArray,weekArray,username,password)
+    smtpMailer(dbx, todayArray,weekArray,username,password)
