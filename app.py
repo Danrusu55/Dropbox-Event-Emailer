@@ -20,7 +20,7 @@ password = os.environ['DROPBOX_EMAIL_PASSWORD']
 def smtpMailer(dbx, todayArray,weekArray,username,password):
     #VARIABLES
     sender = 'dan@deliveredads.com'
-    receiver = 'daniel7rusu@gmail.com'
+    receiver = 'me@brianlang.tax'
     #receiver = 'me@brianlang.tax'
 
     #ARRAYS TO STRING
