@@ -1,7 +1,9 @@
-#!/usr/bin/env python2.7
+import selenium
+from selenium import webdriver
+from selenium.webdriver.common.desired_capabilities import DesiredCapabilities
 
-import os
+firefox_capabilities = DesiredCapabilities.FIREFOX
+firefox_capabilities['marionette'] = True
 
-password =os.environ['DROPBOX_EMAIL_PASSWORD']
-
-print(password)
+driver = webdriver.Firefox(capabilities=firefox_capabilities)
+driver.get('http://google.com')

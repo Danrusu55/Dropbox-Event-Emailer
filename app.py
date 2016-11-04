@@ -1,8 +1,9 @@
 #!/usr/bin/env python2.7
 
-import dropbox, smtplib,os
+import dropbox, smtplib,os,sendgrid
 from datetime import datetime
 from email.mime.text import MIMEText
+from sendgrid.helpers.mail import *
 
 #VARIABLES
 todayArray = []
@@ -18,7 +19,7 @@ password = os.environ['DROPBOX_EMAIL_PASSWORD']
 # MAILER FUNCTION
 def smtpMailer(dbx, todayArray,weekArray,username,password):
     #VARIABLES
-    sender = 'bullhorn0002@gmail.com'
+    sender = 'dan@deliveredads.com'
     receiver = 'daniel7rusu@gmail.com'
     #receiver = 'me@brianlang.tax'
 
@@ -44,17 +45,18 @@ def smtpMailer(dbx, todayArray,weekArray,username,password):
                 weekStr += item[1].strftime("%B %d, %Y, %H:%M")
                 weekStr += '\r\n'
 
-    msg = MIMEText("From: {0}\r\n To: {1}\r\n\r\n Files uploaded today: \r\n\r\n {2} \r\n\r\n Files uploaded this week: \r\n\r\n {3}".format(sender,receiver,todayStr,weekStr))
-    msg['Subject'] = '{0} files uploaded today'.format(len(todayArray))
-    msg['From'] = sender
-    msg['To'] = receiver
+    msg = "From: {0}\r\n To: {1}\r\n\r\n Files uploaded today: \r\n\r\n {2} \r\n\r\n Files uploaded this week: \r\n\r\n {3}".format(sender,receiver,todayStr,weekStr)
 
-    server = smtplib.SMTP('smtp.gmail.com:587')
-    server.starttls()
-    server.login(username,password)
-    #print(msg)
-    server.sendmail(sender,receiver,msg.as_string())
-    server.quit()
+    sg = sendgrid.SendGridAPIClient(apikey='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')
+    from_email = Email(sender)
+    subject = '{0} files uploaded today'.format(len(todayArray))
+    to_email = Email(receiver)
+    content = Content("text/plain", msg)
+    mail = Mail(from_email, subject, to_email, content)
+    response = sg.client.mail.send.post(request_body=mail.get())
+    print(response.status_code)
+    print(response.body)
+    print(response.headers)
 
 
 if __name__ == "__main__":
