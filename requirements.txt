@@ -1,5 +1,5 @@
 docopt==0.6.2
-dropbox==7.1.1
+feedparser==5.2.1
 pipreqs==0.4.4
 python-http-client==2.2.1
 requests==2.11.1
