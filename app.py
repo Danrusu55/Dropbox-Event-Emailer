@@ -35,8 +35,9 @@ def smtpMailer(todayArray,username,password,SendGridAPI):
 if __name__ == "__main__":
     #VARIABLES
     sender = 'dan@deliveredads.com'
-    #receiver = 'daniel7rusu@gmail.com'
-    receiver = 'me@brianlang.tax'
+    receiver = 'daniel7rusu@gmail.com'
+    #receiver = 'me@brianlang.tax'
+    print('Sent to: ' + receiver)
     todayArray = []
     timeNow= datetime.utcnow()
     SendGridAPI = os.environ['SENDGRID_API']
@@ -56,3 +57,4 @@ if __name__ == "__main__":
                 date = entry.updated
                 todayArray.append([url,date])
     smtpMailer(todayArray,username,password,SendGridAPI)
+    #print(todayArray)
