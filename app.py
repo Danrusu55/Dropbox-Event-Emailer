@@ -46,7 +46,7 @@ if __name__ == "__main__":
     #VARIABLES
     sender = 'dan@deliveredads.com'
     receiver = 'me@brianlang.tax'
-    receiver2 = 'daniel7rusu@gmail.com'
+    #receiver2 = 'daniel7rusu@gmail.com'
     todayArray = []
     timeNow= datetime.utcnow()
     SendGridAPI = os.environ['SENDGRID_API']
