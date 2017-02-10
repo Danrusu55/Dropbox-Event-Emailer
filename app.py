@@ -61,7 +61,7 @@ if __name__ == "__main__":
     for entry in entries:
         if "You" not in entry.title:
             summary = entry.summary_detail.value
-            if "tax/work" in summary:
+            if "work" in summary:
                 if "folder" not in summary:
                     # check time, only 15 minutes
                     date = entry.updated
