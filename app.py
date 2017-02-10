@@ -46,6 +46,7 @@ if __name__ == "__main__":
     #VARIABLES
     sender = 'dan@deliveredads.com'
     receiver = 'me@brianlang.tax'
+    receiver2 = ''
     #receiver2 = 'daniel7rusu@gmail.com'
     todayArray = []
     timeNow= datetime.utcnow()
@@ -60,15 +61,16 @@ if __name__ == "__main__":
     for entry in entries:
         if "You" not in entry.title:
             summary = entry.summary_detail.value
-            if "folder" not in summary:
-                # check time, only 15 minutes
-                date = entry.updated
-                dateObject = datetime.strptime(date,'%a, %d %b %Y %X GMT')
-                currentTime = datetime.utcnow()
-                timeDifference = (currentTime - dateObject).total_seconds()/60
-                if timeDifference < 15:
-                    url = re.findall('http[s]?://(?:[a-zA-Z]|[0-9]|[$-_@.&+]|[!*\(\),]|(?:%[0-9a-fA-F][0-9a-fA-F]))+', entry.summary_detail.value)[0]
-                    todayArray.append([url,date])
+            if "tax/work" in summary:
+                if "folder" not in summary:
+                    # check time, only 15 minutes
+                    date = entry.updated
+                    dateObject = datetime.strptime(date,'%a, %d %b %Y %X GMT')
+                    currentTime = datetime.utcnow()
+                    timeDifference = (currentTime - dateObject).total_seconds()/60
+                    if timeDifference < 15:
+                        url = re.findall('http[s]?://(?:[a-zA-Z]|[0-9]|[$-_@.&+]|[!*\(\),]|(?:%[0-9a-fA-F][0-9a-fA-F]))+', entry.summary_detail.value)[0]
+                        todayArray.append([url,date])
     print(todayArray)
     if todayArray:
         smtpMailer(todayArray,username,password,SendGridAPI)
