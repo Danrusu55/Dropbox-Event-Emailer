@@ -45,7 +45,8 @@ def smtpMailer(todayArray,username,password,SendGridAPI):
 if __name__ == "__main__":
     #VARIABLES
     sender = 'dan@deliveredads.com'
-    receiver = 'me@brianlang.tax'
+    #receiver = 'me@brianlang.tax'
+    receiver = 'daniel7rusu@gmail.com'
     receiver2 = ''
     #receiver2 = 'daniel7rusu@gmail.com'
     todayArray = []
@@ -59,9 +60,9 @@ if __name__ == "__main__":
 
     # LOOP THROUGH, IF NOT POSTED BY HIM, APPEND THE STUFF TO THE ARRAY
     for entry in entries:
-        if "You" not in entry.title:
+        if "you" not in entry.title:
             summary = entry.summary_detail.value
-            if "work" in summary:
+            if "Work" in summary:
                 if "folder" not in summary:
                     # check time, only 15 minutes
                     date = entry.updated
