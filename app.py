@@ -45,8 +45,8 @@ def smtpMailer(todayArray,username,password,SendGridAPI):
 if __name__ == "__main__":
     #VARIABLES
     sender = 'dan@deliveredads.com'
-    #receiver = 'me@brianlang.tax'
-    receiver = 'daniel7rusu@gmail.com'
+    receiver = 'me@brianlang.tax'
+    #receiver = 'daniel7rusu@gmail.com'
     receiver2 = ''
     #receiver2 = 'daniel7rusu@gmail.com'
     todayArray = []
