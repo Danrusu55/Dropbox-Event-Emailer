@@ -1,28 +1,55 @@
-#!/usr/bin/env python2.7
+# test to see how many entries come back
 
-import feedparser, smtplib,os,sendgrid,re
+# !/usr/bin/env python2.7
+
+import dropbox, smtplib,os,sendgrid
 from datetime import datetime
 from email.mime.text import MIMEText
 from sendgrid.helpers.mail import *
 
-# MAILER FUNCTION
-def smtpMailer(todayArray,username,password,SendGridAPI):
-    #ARRAYS TO STRING
-    todayStr = ''
-    if not todayArray:
-        todayStr = 'Nothing for today'
-    else:
-        for item in todayArray:
-            todayStr +=  'File uploaded into folder: '
-            todayStr += str(item[0])
-            todayStr += ' on '
-            todayStr += item[1] #.strftime("%B %d, %Y, %H:%M")
-            todayStr += '\r\n'
+# VARIABLES
+lastHourArray = []
+todayArray = []
+currentTime = datetime.utcnow()
+api = os.environ['DROPBOX_API']
+username = os.environ['DROPBOX_EMAIL_USER']
+password = os.environ['DROPBOX_EMAIL_PASSWORD']
+sendGridApi = os.environ['SENDGRID_API']
+dbx = dropbox.Dropbox(api)
+entriesTotalArray = []
+sender = 'dan@deliveredads.com'
+receiver = 'me@brianlang.tax''
 
-    msg = "From: {0}\r\n To: {1}\r\n\r\n Files uploaded today: \r\n\r\n {2} \r\n\r\n".format(sender,receiver,todayStr)
-    sg = sendgrid.SendGridAPIClient(apikey=SendGridAPI)
+# MAILER FUNCTION
+def smtpMailer(lastHourArray,todayArray,username,password,sendGridApi):
+    lastHourStr = ''
+    count = 1
+    for item in lastHourArray:
+        lastHourStr +=  '#{0} File edited: '.format(str(count))
+        lastHourStr += str(item[0])
+        lastHourStr += ' url: '
+        lastHourStr += item[1]
+        lastHourStr += ' at: '
+        lastHourStr += item[2]
+        lastHourStr += '\r\n'
+        count += 1
+
+    todayStr = ''
+    count = 1
+    for item in todayArray:
+        todayStr +=  '#{0} File edited: '.format(str(count))
+        todayStr += str(item[0])
+        todayStr += ' url: '
+        todayStr += item[1]
+        todayStr += ' at: '
+        todayStr += item[2]
+        todayStr += '\r\n'
+        count += 1
+
+    msg = "<b>Files uploaded last hour:</b> \r\n\r\n\r\n\r\n {2} <b>Other Files uploaded today (not including last hour):</b> \r\n\r\n {3} \r\n\r\n".format(sender,receiver,lastHourStr,todayStr)
+    sg = sendgrid.SendGridAPIClient(apikey=sendGridApi)
     from_email = Email(sender)
-    subject = '{0} files uploaded in last 15 minutes'.format(len(todayArray))
+    subject = '{0} files uploaded in last hour'.format(len(lastHourArray))
     to_email = Email(receiver)
 
     content = Content("text/plain", msg)
@@ -30,48 +57,39 @@ def smtpMailer(todayArray,username,password,SendGridAPI):
     mail = Mail(from_email, subject, to_email, content)
     response = sg.client.mail.send.post(request_body=mail.get())
     print('Sent to: ' + receiver)
-
-    if receiver2:
-        to_email = Email(receiver2)
-        mail = Mail(from_email, subject, to_email, content)
-        response = sg.client.mail.send.post(request_body=mail.get())
-        print('Sent to: ' + receiver2)
-
     print(response.status_code)
     print(response.body)
     print(response.headers)
 
+entries = dbx.files_list_folder('/brian alan lang ea/work papers/',recursive=True)
+entriesTotalArray.extend(entries.entries)
 
-if __name__ == "__main__":
-    #VARIABLES
-    sender = 'dan@deliveredads.com'
-    receiver = 'me@brianlang.tax'
-    #receiver = 'daniel7rusu@gmail.com'
-    receiver2 = ''
-    #receiver2 = 'daniel7rusu@gmail.com'
-    todayArray = []
-    timeNow= datetime.utcnow()
-    SendGridAPI = os.environ['SENDGRID_API']
-    username = os.environ['DROPBOX_EMAIL_USER']
-    password = os.environ['DROPBOX_EMAIL_PASSWORD']
+if entries.has_more:
+    count = 1
+    while True:
+        entries = dbx.files_list_folder_continue(entries.cursor)
+        entriesTotalArray.extend(entries.entries)
+        if entries.has_more:
+            count += 1
+            print('on: ' + str(count))
+        else:
+            break
 
-    # GET OBJECT
-    entries = feedparser.parse('https://www.dropbox.com/14433446/22509204/ZV2nIyu2Il19ufIzPMJUAbpwrpd86qmor0RCh0wY/events.xml').entries
+for entry in entriesTotalArray:
+    if hasattr(entry, 'client_modified'):
+        if str(entry.sharing_info.modified_by) != 'dbid:AACSi6iUvmmK0JGy2X3DPFKuqrRsgp2l8jQ': # his user id
+            dateModified = entry.client_modified
+            minDifference = (currentTime - dateModified).total_seconds() / 60
+            if minDifference < 60:
+                lastHourArray.append([str(entry.name),'https://www.dropbox.com/home' + str(entry.path_lower), entry.client_modified.strftime("%Y-%m-%d %H:%M:%S")])
+            elif minDifference < 1440:
+                todayArray.append([str(entry.name),'https://www.dropbox.com/home' + str(entry.path_lower.replace(' ','%20')), entry.client_modified.strftime("%Y-%m-%d %H:%M:%S")])
 
-    # LOOP THROUGH, IF NOT POSTED BY HIM, APPEND THE STUFF TO THE ARRAY
-    for entry in entries:
-        if "you" not in entry.title:
-            summary = entry.summary_detail.value
-            if "Work" in summary:
-                if "folder" not in summary:
-                    # check time, only 15 minutes
-                    date = entry.updated
-                    dateObject = datetime.strptime(date,'%a, %d %b %Y %X GMT')
-                    currentTime = datetime.utcnow()
-                    timeDifference = (currentTime - dateObject).total_seconds()/60
-                    if timeDifference < 15:
-                        url = re.findall('http[s]?://(?:[a-zA-Z]|[0-9]|[$-_@.&+]|[!*\(\),]|(?:%[0-9a-fA-F][0-9a-fA-F]))+', entry.summary_detail.value)[0]
-                        todayArray.append([url,date])
-    print(todayArray)
-    if todayArray:
-        smtpMailer(todayArray,username,password,SendGridAPI)
+print('last hour array')
+print(lastHourArray)
+
+print('today array')
+print(todayArray)
+
+if lastHourArray:
+    smtpMailer(lastHourArray,todayArray,username,password,sendGridApi)
