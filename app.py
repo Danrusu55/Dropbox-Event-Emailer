@@ -2,7 +2,7 @@
 
 # !/usr/bin/env python2.7
 
-import dropbox, smtplib,os,sendgrid
+import dropbox,smtplib,os,sendgrid
 from datetime import datetime
 from email.mime.text import MIMEText
 from sendgrid.helpers.mail import *
@@ -18,7 +18,7 @@ sendGridApi = os.environ['SENDGRID_API']
 dbx = dropbox.Dropbox(api)
 entriesTotalArray = []
 sender = 'dan@deliveredads.com'
-receiver = 'me@brianlang.tax''
+receiver = 'me@brianlang.tax'
 
 # MAILER FUNCTION
 def smtpMailer(lastHourArray,todayArray,username,password,sendGridApi):
