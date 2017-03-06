@@ -8,3 +8,4 @@ six==1.10.0
 typing==3.5.2.2
 urllib3==1.18.1
 yarg==0.1.9
+dropbox==7.1.1
